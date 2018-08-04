@@ -19,6 +19,6 @@ and search for different animes.
 - Google support libraries.
 
 ## Demo images about the app:
-![img](https://github.com/GregBaggings/OtakuBook/tree/master/app/images/MainScreen.png)
-![img](https://github.com/GregBaggings/OtakuBook/tree/master/app/images/SearchResultScreen.png)
-![img](https://github.com/GregBaggings/OtakuBook/tree/master/app/images/AnimeDetailsScreen.png)
+![img](https://github.com/GregBaggings/OtakuBook/blob/master/app/images/MainScreen.png)
+![img](https://github.com/GregBaggings/OtakuBook/blob/master/app/images/SearchResultScreen.png)
+![img](https://github.com/GregBaggings/OtakuBook/blob/master/app/images/AnimeDetailsScreen.png)
