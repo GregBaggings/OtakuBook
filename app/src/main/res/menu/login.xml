@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <group android:id="@+id/loginGroup">
+        <item
+            android:id="@+id/loginField"
+            android:orderInCategory="100"
+            android:title="@string/login"
+            app:showAsAction="never" />
+
+    </group>
+</menu>

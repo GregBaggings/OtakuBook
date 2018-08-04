@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">OtakuBook</string>
+
+    <!-- navigation titles -->
+    <string name="title_home">Home</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="title_surprise">Surprise me</string>
+    <string name="title_next">Next anime</string>
+    <string name="title_previous">Previous anime</string>
+
+    <!-- main activity -->
+    <string name="title_trending_default">Most popular animes:</string>
+    <string name="title_search">Search for anime:</string>
+    <string name="title_go">Go</string>
+    <string name="trending_anime_poster_cont_desc">Place of the poster of the popular anime</string>
+    <string name="search_hint">Enter a title</string>
+    <string name="login">Log in</string>
+    <string name="logout">Log out</string>
+    <string name="logged_in_with_title">You are logged in as: \u0020%s</string>
+
+    <!-- details activity -->
+    <string name="titleLabel">Title:</string>
+    <string name="anime_poster_cont_desc">Anime poster</string>
+    <string name="numberOfEpisodesLabel">Number of episodes:</string>
+    <string name="synopsisLabel">Synopsis:</string>
+    <string name="typeLabel">Type:</string>
+    <string name="details_toolbar_title">Anime details</string>
+    <string name="character_avatar_cont_desc">Place of the image of the character</string>
+    <string name="character_list_label">Character List:</string>
+    <string name="fav_button_cont_desc">Button for marking anime as favorite.</string>
+
+    <!-- Widget -->
+    <string name="widget_cont_desc">TextView to show the favorites in the Widget</string>
+    <string name="yourFavorites">Your favorites are: \n -</string>
+
+    <!-- error and other Toast Strings -->
+    <string name="error_on_authentication">Authentication Failed.</string>
+    <string name="error_on_login">Sign in failed</string>
+    <string name="error_on_no_connection">No internet connection!</string>
+    <string name="error_on_invalid_input">Not a valid input.</string>
+    <string name="error_on_no_result_from_server">No result is returned from the server.</string>
+    <string name="error_on_no_result_from_server2">No anime is returned from the server.</string>
+    <string name="login_to_save_favorite">Please login to save a favorite.</string>
+    <string name="please_log_in">Not logged in, please login on the home screen.</string>
+
+
+</resources>
