@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getTrendingResponse(Call call) {
+    private void getTrendingResponse(Call<TrendingResponse> call) {
         loadingIndicator.setVisibility(View.VISIBLE);
         call.enqueue(new Callback<TrendingResponse>() {
             @Override
@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkInternetConnection() throws NullPointerException {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return connectivityManager.getActiveNetworkInfo() != null;
+        return (connectivityManager != null) && (connectivityManager.getActiveNetworkInfo() != null);
     }
 
     @Optional
@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             firebaseAuth.signOut();
             item.setTitle(getString(R.string.login));
-            sharedPreferences.edit().putString("userName", null).commit();
+            sharedPreferences.edit().putString("userName", null).apply();
             loggedInTV.setText("");
         }
     }
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
                             currentUserName = firebaseAuth.getCurrentUser().getDisplayName();
-                            sharedPreferences.edit().putString("userName", currentUserName).commit();
+                            sharedPreferences.edit().putString("userName", currentUserName).apply();
                             loggedInTV.setText(String.format(getString(R.string.logged_in_with_title), currentUserName));
 
                             MenuItem login = loginMenu.findItem(R.id.loginField);
