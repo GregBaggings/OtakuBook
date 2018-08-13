@@ -167,8 +167,8 @@ public class DetailsActivity extends AppCompatActivity {
         synopsisTV.setText(anime.getSynopsis());
         episodesTV.setText(String.valueOf(anime.getEpisodes()));
         Picasso.with(getApplicationContext())
-                .load(anime.getImageUrl())
-                .placeholder(R.drawable.common_google_signin_btn_icon_light).resize(350, 450)
+                .load(anime.getImageUrl()).resize(350, 450)
+                .placeholder(R.drawable.ic_cloud_download_black_24dp)
                 .error(R.drawable.common_full_open_on_phone).into(posterIV);
         charactersAdapter = new CharactersAdapter(getApplicationContext(), anime);
         recyclerView.setAdapter(charactersAdapter);
