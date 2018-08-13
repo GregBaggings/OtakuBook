@@ -44,17 +44,15 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
 import io.anime.otakubook.adapters.TrendingAnimesAdapter;
-import io.anime.otakubook.api.AnimeRequestHandler;
 import io.anime.otakubook.api.AnimesAPI;
 import io.anime.otakubook.api.AnimesAPIInterface;
-import io.anime.otakubook.api.AsyncEventListener;
-import io.anime.otakubook.api.SearchRequestHandler;
-import io.anime.otakubook.api.TrendingAnimesRequestHandler;
 import io.anime.otakubook.models.animes.TempEnumForAnimes;
 import io.anime.otakubook.models.animes.anime.AnimeResponse;
 import io.anime.otakubook.models.animes.search.SearchResponse;
 import io.anime.otakubook.models.animes.trending.TrendingResponse;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -187,93 +185,81 @@ public class MainActivity extends AppCompatActivity {
         int id = ThreadLocalRandom.current().nextInt(1, 1000);
         loadingIndicator.setVisibility(View.VISIBLE);
         Call<AnimeResponse> call = service.getAnimeByID(id);
-        AnimeRequestHandler requestHandler = new AnimeRequestHandler(call, getApplicationContext(), new AsyncEventListener() {
-
+        call.enqueue(new Callback<AnimeResponse>() {
             @Override
-            public void onSuccessTrendingAnimes(TrendingResponse trendingAnimes) {
-
+            public void onResponse(@NonNull Call<AnimeResponse> call, @NonNull Response<AnimeResponse> response) {
+                if (response.body() != null) {
+                    loadingIndicator.setVisibility(View.INVISIBLE);
+                    intent = new Intent(getApplicationContext(), DetailsActivity.class);
+                    TempEnumForAnimes enumForAnime = TempEnumForAnimes.INSTANCE;
+                    enumForAnime.setAnime(response.body());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
-            public void onSuccessSearch(SearchResponse animes) {
-
-            }
-
-            @Override
-            public void onSuccessAnime(AnimeResponse anime) {
-                loadingIndicator.setVisibility(View.INVISIBLE);
-                intent = new Intent(getApplicationContext(), DetailsActivity.class);
-                TempEnumForAnimes enumForAnime = TempEnumForAnimes.INSTANCE;
-                enumForAnime.setAnime(anime);
-                startActivity(intent);
+            public void onFailure(@NonNull Call<AnimeResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
             }
         });
-
-        requestHandler.execute(call);
     }
 
-    private void getTrendingResponse(Call call) {
+    private void getTrendingResponse(Call<TrendingResponse> call) {
         loadingIndicator.setVisibility(View.VISIBLE);
-        TrendingAnimesRequestHandler requestHandler = new TrendingAnimesRequestHandler(call, getApplicationContext(), new AsyncEventListener() {
-
+        call.enqueue(new Callback<TrendingResponse>() {
             @Override
-            public void onSuccessTrendingAnimes(TrendingResponse trendingAnimes) {
-                trendingAnimesAdapter = new TrendingAnimesAdapter(getApplicationContext(), loadingIndicator, trendingAnimes);
-                recyclerView.setAdapter(trendingAnimesAdapter);
-                loadingIndicator.setVisibility(View.INVISIBLE);
+            public void onResponse(@NonNull Call<TrendingResponse> call, @NonNull Response<TrendingResponse> response) {
+                if (response.body() != null) {
+                    TrendingResponse trendingAnimes = response.body();
+                    trendingAnimesAdapter = new TrendingAnimesAdapter(getApplicationContext(), loadingIndicator, trendingAnimes);
+                    recyclerView.setAdapter(trendingAnimesAdapter);
+                    loadingIndicator.setVisibility(View.INVISIBLE);
+                } else {
+                    loadingIndicator.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
-            public void onSuccessSearch(SearchResponse animes) {
-
-            }
-
-            @Override
-            public void onSuccessAnime(AnimeResponse anime) {
-
+            public void onFailure(@NonNull Call<TrendingResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
             }
         });
-
-        requestHandler.execute(call);
     }
 
     @OnClick(R.id.searchButton)
     public void getSearchResponse() {
         String title = searchET.getText().toString();
         Call<SearchResponse> call = service.searchByAnimeTitle(title);
-
         if (!title.equals("")) {
             loadingIndicator.setVisibility(View.VISIBLE);
-            SearchRequestHandler requestHandler = new SearchRequestHandler(call, getApplicationContext(), new AsyncEventListener() {
-
+            call.enqueue(new Callback<SearchResponse>() {
                 @Override
-                public void onSuccessTrendingAnimes(TrendingResponse trendingAnimes) {
-
+                public void onResponse(@NonNull Call<SearchResponse> call, @NonNull Response<SearchResponse> response) {
+                    if (response.body() != null) {
+                        Intent intent = new Intent(getApplicationContext(), SearchResultActivity.class);
+                        intent.putExtra("SEARCH_RESULT", response.body());
+                        loadingIndicator.setVisibility(View.INVISIBLE);
+                        startActivity(intent);
+                    } else {
+                        loadingIndicator.setVisibility(View.INVISIBLE);
+                        Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
+                    }
                 }
 
                 @Override
-                public void onSuccessSearch(SearchResponse animes) {
-                    Intent intent = new Intent(getApplicationContext(), SearchResultActivity.class);
-                    intent.putExtra("SEARCH_RESULT", animes);
-                    loadingIndicator.setVisibility(View.INVISIBLE);
-                    startActivity(intent);
-                }
-
-                @Override
-                public void onSuccessAnime(AnimeResponse anime) {
-
+                public void onFailure(@NonNull Call<SearchResponse> call, @NonNull Throwable t) {
+                    Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
                 }
             });
-
-            requestHandler.execute(call);
-        } else {
-            Toast.makeText(getApplicationContext(), getString(R.string.error_on_invalid_input), Toast.LENGTH_LONG).show();
         }
     }
 
     private boolean checkInternetConnection() throws NullPointerException {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return connectivityManager.getActiveNetworkInfo() != null;
+        return (connectivityManager != null) && (connectivityManager.getActiveNetworkInfo() != null);
     }
 
     @Optional
@@ -287,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             firebaseAuth.signOut();
             item.setTitle(getString(R.string.login));
-            sharedPreferences.edit().putString("userName", null).commit();
+            sharedPreferences.edit().putString("userName", null).apply();
             loggedInTV.setText("");
         }
     }
@@ -313,9 +299,9 @@ public class MainActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
                             currentUserName = firebaseAuth.getCurrentUser().getDisplayName();
-                            sharedPreferences.edit().putString("userName", currentUserName).commit();
+                            sharedPreferences.edit().putString("userName", currentUserName).apply();
                             loggedInTV.setText(String.format(getString(R.string.logged_in_with_title), currentUserName));
 
                             MenuItem login = loginMenu.findItem(R.id.loginField);

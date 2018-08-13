@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -19,15 +20,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.anime.otakubook.DetailsActivity;
 import io.anime.otakubook.R;
-import io.anime.otakubook.api.AnimeRequestHandler;
 import io.anime.otakubook.api.AnimesAPI;
 import io.anime.otakubook.api.AnimesAPIInterface;
-import io.anime.otakubook.api.AsyncEventListener;
 import io.anime.otakubook.models.animes.TempEnumForAnimes;
 import io.anime.otakubook.models.animes.anime.AnimeResponse;
-import io.anime.otakubook.models.animes.search.SearchResponse;
 import io.anime.otakubook.models.animes.trending.TrendingResponse;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TrendingAnimesAdapter extends RecyclerView.Adapter<TrendingAnimesAdapter.ViewHolder> {
 
@@ -42,7 +42,7 @@ public class TrendingAnimesAdapter extends RecyclerView.Adapter<TrendingAnimesAd
         this.myContext = context;
     }
 
-    public void getPosterPaths() {
+    private void getPosterPaths() {
         for (int i = 0; i < trendingAnimesResponse.getTop().size(); i++) {
             String posterUrlWithoutSize = trendingAnimesResponse.getTop().get(i).getImageUrl().replace("/r/100x140", "");
             posterPaths.add(posterUrlWithoutSize);
@@ -80,7 +80,7 @@ public class TrendingAnimesAdapter extends RecyclerView.Adapter<TrendingAnimesAd
         private Intent intent;
         private AnimesAPIInterface service = AnimesAPI.getRetrofit().create(AnimesAPIInterface.class);
 
-        public ViewHolder(View itemView) {
+        private ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             intent = new Intent(myContext, DetailsActivity.class);
@@ -91,28 +91,27 @@ public class TrendingAnimesAdapter extends RecyclerView.Adapter<TrendingAnimesAd
                     progressBar.setVisibility(View.VISIBLE);
                     int malId = trendingAnimesResponse.getTop().get(getAdapterPosition()).getMalId();
                     Call<AnimeResponse> call = service.getAnimeByID(malId);
-                    AnimeRequestHandler requestHandler = new AnimeRequestHandler(call, myContext, new AsyncEventListener() {
+                    call.enqueue(new Callback<AnimeResponse>() {
 
                         @Override
-                        public void onSuccessTrendingAnimes(TrendingResponse trendingAnimes) {
-
+                        public void onResponse(@NonNull Call<AnimeResponse> call, @NonNull Response<AnimeResponse> response) {
+                            if(response.body() != null) {
+                                TempEnumForAnimes enumForAnime = TempEnumForAnimes.INSTANCE;
+                                enumForAnime.setAnime(response.body());
+                                progressBar.setVisibility(View.INVISIBLE);
+                                myContext.startActivity(intent);
+                            }
+                            else{
+                                progressBar.setVisibility(View.INVISIBLE);
+                                Toast.makeText(myContext, myContext.getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
+                            }
                         }
 
                         @Override
-                        public void onSuccessSearch(SearchResponse animes) {
-
-                        }
-
-                        @Override
-                        public void onSuccessAnime(AnimeResponse anime) {
-                            TempEnumForAnimes enumForAnime = TempEnumForAnimes.INSTANCE;
-                            enumForAnime.setAnime(anime);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            myContext.startActivity(intent);
+                        public void onFailure(@NonNull Call<AnimeResponse> call, @NonNull Throwable t) {
+                            Toast.makeText(myContext, myContext.getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
                         }
                     });
-
-                    requestHandler.execute(call);
                 }
             });
         }
