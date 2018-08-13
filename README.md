@@ -16,7 +16,11 @@ and search for different animes.
 - ButterKnife,
 - Picasso,
 - Google Firebase and GMS libraries,
-- Google support libraries.
+- Google Support libraries.
+
+## Future Plans:
+- Full redesign and extending the populated anime details content,
+- Introduce ViewModel.
 
 ## Demo images about the app:
 ![img](https://github.com/GregBaggings/OtakuBook/blob/master/app/images/MainScreen.png)
