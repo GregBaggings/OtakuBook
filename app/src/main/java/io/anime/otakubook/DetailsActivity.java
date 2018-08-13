@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -34,16 +35,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.anime.otakubook.adapters.CharactersAdapter;
-import io.anime.otakubook.api.AnimeRequestHandler;
 import io.anime.otakubook.api.AnimesAPI;
 import io.anime.otakubook.api.AnimesAPIInterface;
-import io.anime.otakubook.api.AsyncEventListener;
 import io.anime.otakubook.models.animes.Favorite;
 import io.anime.otakubook.models.animes.TempEnumForAnimes;
 import io.anime.otakubook.models.animes.anime.AnimeResponse;
-import io.anime.otakubook.models.animes.search.SearchResponse;
-import io.anime.otakubook.models.animes.trending.TrendingResponse;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -132,12 +131,12 @@ public class DetailsActivity extends AppCompatActivity {
             databaseReference.child("favoriteAnimes").child(userName)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             Favorite dbStuff = dataSnapshot.getValue(Favorite.class);
-                            try {
+                            if (dbStuff != null) {
                                 favoriteTitles = dbStuff.getFavoriteTitles();
-                            } catch (Exception e) {
-                                e.getLocalizedMessage();
+                            } else {
+                                throw new DatabaseException("DB Error");
                             }
 
                             if (favoriteTitles.contains(anime.getTitle())) {
@@ -149,7 +148,7 @@ public class DetailsActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
                         }
                     });
@@ -179,28 +178,25 @@ public class DetailsActivity extends AppCompatActivity {
     private void getPrevOrNextAnime(int malId) {
         Call<AnimeResponse> call = service.getAnimeByID(malId);
         loadingIndicator.setVisibility(View.VISIBLE);
-        AnimeRequestHandler requestHandler = new AnimeRequestHandler(call, getApplicationContext(), new AsyncEventListener() {
-
+        call.enqueue(new Callback<AnimeResponse>() {
             @Override
-            public void onSuccessTrendingAnimes(TrendingResponse trendingAnimes) {
-
+            public void onResponse(@NonNull Call<AnimeResponse> call, @NonNull Response<AnimeResponse> response) {
+                if (response.body() != null) {
+                    anime = response.body();
+                    enumForAnime.setAnime(anime);
+                    updateUI();
+                    loadingIndicator.setVisibility(View.INVISIBLE);
+                } else {
+                    loadingIndicator.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
-            public void onSuccessSearch(SearchResponse animes) {
-
-            }
-
-            @Override
-            public void onSuccessAnime(AnimeResponse otherAnime) {
-                anime = otherAnime;
-                enumForAnime.setAnime(anime);
-                updateUI();
-                loadingIndicator.setVisibility(View.INVISIBLE);
+            public void onFailure(@NonNull Call<AnimeResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getApplication(), getString(R.string.error_on_no_result_from_server), Toast.LENGTH_LONG).show();
             }
         });
-
-        requestHandler.execute(call);
     }
 
     @OnClick(R.id.favoriteIBT)
@@ -209,12 +205,12 @@ public class DetailsActivity extends AppCompatActivity {
             databaseReference.child("favoriteAnimes").child(userName)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             Favorite dbStuff = dataSnapshot.getValue(Favorite.class);
-                            try {
+                            if (dbStuff != null) {
                                 favoriteTitles = dbStuff.getFavoriteTitles();
-                            } catch (Exception e) {
-                                e.getLocalizedMessage();
+                            } else {
+                                throw new DatabaseException("DB Error");
                             }
 
                             if (!favoriteTitles.contains(anime.getTitle())) {
@@ -231,7 +227,7 @@ public class DetailsActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
                         }
                     });
