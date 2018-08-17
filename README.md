@@ -11,6 +11,8 @@ and search for different animes.
 - included AdMob banner though the [Google Admob Service](https://www.google.com/admob/)
 - realtime database (NoSql) to store the favorites of the logged in users provided by [Google Firebase](https://firebase.google.com/)
 
+Note: To be able to run the project, you need to register your own version on [Google Firebase](https://console.firebase.google.com/) and add the generated google-services.json file to the app folder.
+
 ## Used libraries:
 - Retrofit,
 - ButterKnife,
