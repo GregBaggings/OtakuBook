@@ -1,7 +1,7 @@
 # OtakuBook
-6th and final project of the Android Developer Nanodegree program by Udacity
+6th and final project of the Android Developer Nanodegree program by Udacity and Google.
 
-This anime browser application is built on top of the [JIKAN Rest API](https://jikan.docs.apiary.io/#) to enable to user to browse 
+This anime browser application is built on top of the [JIKAN Rest API](https://jikan.docs.apiary.io/#) to enable the user to browse 
 and search for different animes.
 
 ## Features:
